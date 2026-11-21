@@ -1,0 +1,1461 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VERTIKAL SMA — Dashboard Asesmen Profil 7KAIH | SMA MBS Sleman Yogyakarta</title>
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <!-- Chart.js via CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              indigo: '#2E6F68',
+              emerald: '#059669',
+              amber: '#d97706',
+              saltedEgg: '#E8F4F2',
+              saltedEggDeep: '#2E6F68',
+              saltedEggSoft: '#D5EBE7',
+              butterYellow: '#FFFDF0',
+              butterDeep: '#F7E596',
+              butterBorder: '#EFE6B8',
+            }
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    /* Batasan tinggi kontainer grafik agar selalu presisi tanpa layout shift */
+    .chart-box {
+      position: relative;
+      height: 310px;
+      width: 100%;
+    }
+    .chart-box-sm {
+      position: relative;
+      height: 265px;
+      width: 100%;
+    }
+    .chart-box-lg {
+      position: relative;
+      height: 360px;
+      width: 100%;
+    }
+    /* Custom scrollbar halus */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+  </style>
+</head>
+<body class="bg-[#E8F4F2] text-slate-800 font-sans antialiased selection:bg-[#D5EBE7] selection:text-[#1F4E49]">
+
+  <!-- Launcher Screen (Tampilan awal ikon mini seperti aplikasi HP/Laptop) -->
+  <div id="launcherScreen" class="fixed inset-0 z-50 bg-[#E8F4F2] flex items-center justify-center p-4 transition-all duration-500">
+    <div class="text-center group cursor-pointer" onclick="showWelcomeScreen()">
+      <div class="relative mx-auto w-28 h-28 sm:w-32 sm:h-32 rounded-3xl bg-[#FFFDF0] border-2 border-[#DFD293] shadow-xl hover:shadow-2xl flex items-center justify-center p-2 transition transform hover:scale-105">
+        <!-- Logo Wavorazca -->
+        <svg viewBox="0 0 300 300" class="w-full h-full rounded-2xl overflow-hidden" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Logo Wavorazca">
+          <defs>
+            <path id="wavorazcaTopArcLauncher" d="M 52,150 A 98,98 0 1,1 248,150" />
+            <path id="wavorazcaBottomArcLauncher" d="M 38,155 A 112,112 0 0,0 262,155" />
+          </defs>
+          <circle cx="150" cy="150" r="144" fill="#46516E" />
+          <circle cx="150" cy="150" r="138" fill="none" stroke="#CBD2E1" stroke-width="3" stroke-dasharray="3 3" />
+          <circle cx="150" cy="150" r="132" fill="none" stroke="#FFFFFF" stroke-width="1.5" opacity="0.85" />
+          <ellipse cx="70" cy="112" rx="26" ry="15" fill="#5A678A" opacity="0.7" />
+          <ellipse cx="230" cy="112" rx="26" ry="15" fill="#5A678A" opacity="0.7" />
+          <ellipse cx="150" cy="155" rx="106" ry="30" transform="rotate(-7 150 155)" fill="none" stroke="#D8DFEE" stroke-width="2" />
+          <circle cx="150" cy="152" r="82" fill="#FFFFFF" />
+          <g transform="translate(-14, -4)">
+            <polygon points="145,92 159,126 196,129 168,152 177,188 145,168 113,188 122,152 94,129 131,126" fill="none" stroke="#536182" stroke-width="4" stroke-linejoin="round" />
+            <polygon points="145,106 155,131 182,133 161,150 168,176 145,161 122,176 129,150 108,133 135,131" fill="none" stroke="#536182" stroke-width="3" stroke-linejoin="round" />
+            <polygon points="145,119 151,135 168,136 155,147 159,163 145,154 131,163 135,147 122,136 139,135" fill="#D5DCEB" />
+          </g>
+          <path d="M 168,92 Q 168,100 176,100 Q 168,100 168,108 Q 168,100 160,100 Q 168,100 168,92 Z" fill="#536182" />
+          <text x="186" y="168" text-anchor="middle" fill="#536182" font-family="Georgia, serif" font-size="22" font-weight="600" letter-spacing="-0.5">active</text>
+          <text x="186" y="182" text-anchor="middle" fill="#536182" font-family="Inter, sans-serif" font-size="13.5" font-weight="500">creative</text>
+          <text fill="#FFFFFF" font-family="Georgia, serif" font-size="40" font-weight="700" letter-spacing="1">
+            <textPath href="#wavorazcaTopArcLauncher" startOffset="50%" text-anchor="middle">wavorazca</textPath>
+          </text>
+        </svg>
+        <!-- Badge Indikator Ketuk -->
+        <span class="absolute -bottom-2 px-3 py-0.5 rounded-full text-[10px] font-bold bg-[#F7E596] text-[#3D3106] border border-[#DFC764] shadow-sm animate-pulse">
+          Klik untuk Buka
+        </span>
+      </div>
+      <h2 class="mt-4 text-lg font-bold text-[#1F4E49] tracking-wide">Dashboard</h2>
+      <p class="text-xs text-slate-600 mt-0.5">Asesmen Profil 7KAIH — SMA MBS Sleman Yogyakarta</p>
+    </div>
+  </div>
+
+  <!-- Welcome Transition Screen (Layar sambutan bertuliskan welcome to WAVORAZCA) -->
+  <div id="welcomeScreen" class="fixed inset-0 z-50 bg-[#E8F4F2] flex items-center justify-center p-4 hidden opacity-0 transition-all duration-700 overflow-hidden">
+    <!-- Background Foto Air Terang & Jelas sesuai permintaan -->
+    <div class="absolute inset-0 bg-cover bg-center opacity-90 pointer-events-none" style="background-image: url('https://images.unsplash.com/photo-1518837695005-2083093ee35b?q=80&w=1600&auto=format&fit=crop'); background-repeat: no-repeat;"></div>
+    <div class="absolute inset-0 bg-[#E8F4F2]/25 pointer-events-none"></div>
+
+    <div class="relative z-10 max-w-2xl mx-auto text-center space-y-6 p-6 overflow-y-auto max-h-[90vh]">
+      <div class="space-y-2">
+        <p class="text-sm sm:text-base font-semibold text-[#163834] tracking-widest uppercase animate-fade-in drop-shadow-sm">welcome</p>
+        <h1 class="text-3xl sm:text-5xl font-extrabold text-[#112E2B] tracking-wider uppercase drop-shadow-md">to WAVORAZCA</h1>
+      </div>
+      
+      <div class="pt-2 space-y-4 text-left">
+        <p class="text-xs sm:text-sm text-slate-900 font-medium leading-relaxed bg-[#FFFDF0]/95 p-5 rounded-2xl border border-[#EFE6B8] shadow-md">
+          WAVORAZCA adalah tim koding putri dari PPM MUHAMMADIYAH BOARDING SCHOOL YOGYAKARTA yang menjadi salah satu sekolah model serta menjadi acuan bagi sekolah-sekolah lain di Indonesia. Kini kami menghadirkan website mengenai ASESMEN PROFIL 7 KAIH melalui kompetisi VERTIKAL-Inovasi Berbasis Teknologi Informasi Dan Kecerdasan Artifisial, yang diselenggarakan oleh Kemendikdasmen Sekolah Menengah Atas dan bekerja sama dengan REFO GEMINI.
+        </p>
+        <p class="text-xs sm:text-sm text-slate-900 font-medium leading-relaxed bg-[#FFFDF0]/95 p-5 rounded-2xl border border-[#EFE6B8] shadow-md">
+          WAVORAZCA berasal dari bahasa inggris; Wave (gelombang), latin; Laborare (perubahan), Z yaitu Zealous (semangat), serta Catalyst (sekelompok orang yang menjadi pemantik perubahan besar). Kami berharap dengan adanya WAVORAZCA dapat meningkatkan kompetensi 7 KAIH di lingkup masyarakat, terutama lingkup sekolah di Indonesia.
+        </p>
+        <p class="text-xs sm:text-sm font-bold text-slate-950 leading-relaxed bg-[#FFFDF0]/95 p-5 rounded-2xl border border-[#EFE6B8] shadow-md text-center">
+          "Kami, WAVORAZCA-Bergerak Bersama, Menciptakan Gelombang Perubahan. Mempersembahkan"
+        </p>
+      </div>
+
+      <!-- 3 Kotak Navigasi Sesuai Permintaan -->
+      <div class="pt-2 grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+        <div onclick="handleBoxClick('WAVORAZCA')" class="p-4 rounded-2xl bg-[#FFFDF0] hover:bg-[#FDFBF7] border border-[#EFE6B8] shadow-sm text-center font-bold text-[#1F4E49] text-sm cursor-pointer transition transform hover:scale-105">
+          WAVORAZCA
+        </div>
+        <div onclick="handleBoxClick('Dashboard')" class="p-4 rounded-2xl bg-[#F7E596] hover:bg-[#F0DB7A] border border-[#DFC764] shadow-md text-center font-bold text-[#3D3106] text-sm cursor-pointer transition transform hover:scale-105">
+          Dashboard
+        </div>
+        <div onclick="handleBoxClick('Web.MBS')" class="p-4 rounded-2xl bg-[#FFFDF0] hover:bg-[#FDFBF7] border border-[#EFE6B8] shadow-sm text-center font-bold text-[#1F4E49] text-sm cursor-pointer transition transform hover:scale-105">
+          Web.MBS
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main App Container (Hidden sampai diklik) -->
+  <div id="mainAppContainer" class="relative hidden opacity-0 transition-opacity duration-500 min-h-screen w-full overflow-x-hidden">
+    <!-- Background Lukisan Cat Air Pesisir Laut & Pantai (Menempel penuh di layar tanpa terlepas saat di-scroll) -->
+    <div id="dashboardBgImage" class="fixed inset-0 -z-10 w-screen h-screen bg-cover bg-center bg-no-repeat pointer-events-none" style="background-image: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1600&auto=format&fit=crop'); filter: saturate(1.15) contrast(1.05);"></div>
+    <!-- Lapisan tint lembut agar lukisan cat air pesisir tetap jelas terlihat di belakang panel -->
+    <div class="fixed inset-0 -z-10 w-screen h-screen bg-gradient-to-br from-[#174657]/15 via-transparent to-[#D5B68A]/20 pointer-events-none"></div>
+
+    <!-- Top Navigation & Hero Header (Disatukan dengan Status Banner agar tidak ada jarak) -->
+    <header class="relative z-30 bg-[#FFFDF0]/95 backdrop-blur-sm border-b border-[#EFE6B8] sticky top-0 shadow-sm">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+          <div class="flex items-start sm:items-center gap-3.5">
+            <div class="h-12 w-12 rounded-2xl bg-[#FFFDF0] border border-[#DFD293] flex items-center justify-center p-1 shadow-sm shrink-0">
+              <!-- Logo Wavorazca di Header -->
+              <svg viewBox="0 0 300 300" class="w-full h-full rounded-xl overflow-hidden" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Logo Wavorazca Header">
+                <defs>
+                  <path id="wavorazcaTopArcHeader" d="M 52,150 A 98,98 0 1,1 248,150" />
+                  <path id="wavorazcaBottomArcHeader" d="M 38,155 A 112,112 0 0,0 262,155" />
+                </defs>
+                <circle cx="150" cy="150" r="144" fill="#46516E" />
+                <circle cx="150" cy="150" r="138" fill="none" stroke="#CBD2E1" stroke-width="3" stroke-dasharray="3 3" />
+                <circle cx="150" cy="150" r="132" fill="none" stroke="#FFFFFF" stroke-width="1.5" opacity="0.85" />
+                <ellipse cx="70" cy="112" rx="26" ry="15" fill="#5A678A" opacity="0.7" />
+                <ellipse cx="230" cy="112" rx="26" ry="15" fill="#5A678A" opacity="0.7" />
+                <ellipse cx="150" cy="155" rx="106" ry="30" transform="rotate(-7 150 155)" fill="none" stroke="#D8DFEE" stroke-width="2" />
+                <circle cx="150" cy="152" r="82" fill="#FFFFFF" />
+                <g transform="translate(-14, -4)">
+                  <polygon points="145,92 159,126 196,129 168,152 177,188 145,168 113,188 122,152 94,129 131,126" fill="none" stroke="#536182" stroke-width="4" stroke-linejoin="round" />
+                  <polygon points="145,106 155,131 182,133 161,150 168,176 145,161 122,176 129,150 108,133 135,131" fill="none" stroke="#536182" stroke-width="3" stroke-linejoin="round" />
+                  <polygon points="145,119 151,135 168,136 155,147 159,163 145,154 131,163 135,147 122,136 139,135" fill="#D5DCEB" />
+                </g>
+                <path d="M 168,92 Q 168,100 176,100 Q 168,100 168,108 Q 168,100 160,100 Q 168,100 168,92 Z" fill="#536182" />
+                <text x="186" y="168" text-anchor="middle" fill="#536182" font-family="Georgia, serif" font-size="22" font-weight="600" letter-spacing="-0.5">active</text>
+                <text x="186" y="182" text-anchor="middle" fill="#536182" font-family="Inter, sans-serif" font-size="13.5" font-weight="500">creative</text>
+                <text fill="#FFFFFF" font-family="Georgia, serif" font-size="40" font-weight="700" letter-spacing="1">
+                  <textPath href="#wavorazcaTopArcHeader" startOffset="50%" text-anchor="middle">wavorazca</textPath>
+                </text>
+              </svg>
+            </div>
+            <div>
+              <h1 class="text-lg sm:text-2xl font-extrabold text-slate-900 tracking-tight">
+                Dashboard Asesmen Profil 7KAIH — SMA MBS Sleman Yogyakarta
+              </h1>
+              <p class="text-xs sm:text-sm text-slate-500">
+                7 Kebiasaan Anak Indonesia Hebat • Kelas X, XI & XII • <span class="font-medium text-slate-700">DATA7KAIH_WAVORAZCA.xlsx</span>
+              </p>
+            </div>
+          </div>
+
+          <!-- Ringkasan Status & Tombol Reset Filter -->
+          <div class="flex flex-wrap items-center gap-2.5">
+            <button
+              id="btnResetFilter"
+              type="button"
+              class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-[#E8F4F2] hover:bg-[#D5EBE7] text-[#1F4E49] border border-[#BFE0DA] transition cursor-pointer"
+            >
+              <svg class="w-4 h-4 text-[#2E6F68]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              Reset Filter
+            </button>
+            <div class="px-3.5 py-2 rounded-xl bg-[#FBF4CF] border border-[#E6D585] text-xs font-medium text-[#5C490B]">
+              Skor Rata-rata: <strong id="headerAvgScore" class="font-bold">147,25 / 180 (81,81%)</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- Filter Bar Global -->
+        <div class="mt-4 pt-3.5 border-t border-[#EFE6B8] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          <div>
+            <label for="filterWave" class="block text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-1">
+              Gelombang / Tanggal Survei
+            </label>
+            <select id="filterWave" class="w-full rounded-xl border border-[#DFD293] bg-[#E8F4F2]/60 px-3 py-2 text-xs sm:text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#589B92] focus:bg-[#FFFDF0] transition">
+              <option value="ALL">Semua Gelombang (8–18 Nov 2026 • 2.368 data)</option>
+              <option value="W1">Gelombang 1 — 2026-11-08 (592 data)</option>
+              <option value="W2">Gelombang 2 — 2026-11-12 (592 data)</option>
+              <option value="W3">Gelombang 3 — 2026-11-14 (592 data)</option>
+              <option value="W4">Gelombang 4 — 2026-11-18 (592 data)</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="filterDimension" class="block text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-1">
+              Fokus Dimensi 7KAIH
+            </label>
+            <select id="filterDimension" class="w-full rounded-xl border border-[#DFD293] bg-[#E8F4F2]/60 px-3 py-2 text-xs sm:text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#589B92] focus:bg-[#FFFDF0] transition">
+              <option value="ALL">Semua 7 Dimensi (D1–D7)</option>
+              <option value="D1">D1: Bangun Pagi (77,26%)</option>
+              <option value="D2">D2: Beribadah (81,63%)</option>
+              <option value="D3">D3: Berolahraga (82,14%)</option>
+              <option value="D4">D4: Makan Sehat Bergizi (84,90%)</option>
+              <option value="D5">D5: Gemar Belajar (79,60%)</option>
+              <option value="D6">D6: Bermasyarakat (86,26%)</option>
+              <option value="D7">D7: Tidur Cepat (80,90%)</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="filterJenjang" class="block text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-1">
+              Jenjang Kelas (31 Rombel Reguler)
+            </label>
+            <select id="filterJenjang" class="w-full rounded-xl border border-[#DFD293] bg-[#E8F4F2]/60 px-3 py-2 text-xs sm:text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#589B92] focus:bg-[#FFFDF0] transition">
+              <option value="ALL">Semua Jenjang (Kelas 10, 11 & 12)</option>
+              <option value="10">Kelas 10 (11 Rombel)</option>
+              <option value="11">Kelas 11 (10 Rombel)</option>
+              <option value="12">Kelas 12 (10 Rombel)</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="filterItemType" class="block text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-1">
+              Jenis Butir Pernyataan (P1–P45)
+            </label>
+            <select id="filterItemType" class="w-full rounded-xl border border-[#DFD293] bg-[#E8F4F2]/60 px-3 py-2 text-xs sm:text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#589B92] focus:bg-[#FFFDF0] transition">
+              <option value="ALL">Semua Butir (Positif & Reverse-Scored)</option>
+              <option value="POS">Butir Positif (Skor Langsung 1–4)</option>
+              <option value="REV">Butir Negatif / Reverse-Scored (Dibalik)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <nav aria-label="Navigasi Utama Dashboard" class="mt-4 flex gap-1.5 overflow-x-auto pb-1">
+          <button
+            type="button"
+            data-tab="tab-ringkasan"
+            class="tab-btn px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition cursor-pointer bg-[#F7E596] text-[#3D3106] border border-[#DFC764] shadow-sm"
+          >
+            1. Ringkasan & Tren 4 Gelombang
+          </button>
+          <button
+            type="button"
+            data-tab="tab-dimensi"
+            class="tab-btn px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition cursor-pointer bg-[#E8F4F2] text-[#1F4E49] hover:bg-[#D5EBE7] border border-[#BFE0DA]"
+          >
+            2. Analisis Dimensi & Butir (P1–P45)
+          </button>
+          <button
+            type="button"
+            data-tab="tab-partisipasi"
+            class="tab-btn px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition cursor-pointer bg-[#E8F4F2] text-[#1F4E49] hover:bg-[#D5EBE7] border border-[#BFE0DA]"
+          >
+            3. Partisipasi 31 Kelas & Tindak Lanjut
+          </button>
+          <button
+            type="button"
+            data-tab="tab-rekomendasi"
+            class="tab-btn px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition cursor-pointer bg-[#E8F4F2] text-[#1F4E49] hover:bg-[#D5EBE7] border border-[#BFE0DA]"
+          >
+            4. Rekomendasi Aksi Nyata
+          </button>
+        </nav>
+      </div>
+
+      <!-- Status Banner (Menempel langsung tanpa jarak di bagian bawah header) -->
+      <div id="activeFilterBanner" class="bg-[#FFFDF0] border-t border-[#EFE6B8] px-4 sm:px-6 lg:px-8 py-2.5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-xs sm:text-sm">
+        <div class="flex items-center gap-2 text-slate-700">
+          <span class="inline-block w-2.5 h-2.5 rounded-full bg-[#589B92]"></span>
+          <span>Menampilkan profil asesmen <strong id="bannerScopeText" class="text-[#1F4E49]">Semua Gelombang (2.368 entri • 625 NIS/NISN unik)</strong> — 7 Kebiasaan Anak Indonesia Hebat Santri SMA MBS Sleman Yogyakarta.</span>
+        </div>
+        <span id="bannerWaveDelta" class="font-semibold text-[#2E6F68] shrink-0">Tren W1 → W4: +1,38 poin persentase</span>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-12 space-y-6">
+
+    <!-- ========================================================= -->
+    <!-- TAB 1: RINGKASAN & TREN 4 GELOMBANG                       -->
+    <!-- ========================================================= -->
+    <section id="tab-ringkasan" class="tab-panel space-y-6">
+      <!-- 4 KPI Cards -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+        <div class="bg-[#FFFDF0] rounded-2xl p-5 border border-[#EFE6B8] shadow-sm hover:border-[#8CC5BD] transition">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Total Submisi Data</span>
+            <span class="p-2 rounded-xl bg-[#E8F4F2] text-[#2E6F68] border border-[#BFE0DA]">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+            </span>
+          </div>
+          <div id="kpiTotalRows" class="mt-2 text-2xl sm:text-3xl font-extrabold text-slate-900">2.368</div>
+          <p class="mt-1 text-xs text-slate-500">
+            4 gelombang × 592 data • <strong class="text-[#1F4E49]">625 NIS/NISN unik</strong>
+          </p>
+        </div>
+
+        <div class="bg-[#FFFDF0] rounded-2xl p-5 border border-[#EFE6B8] shadow-sm hover:border-[#DFC764] transition">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Rata-Rata Skor Profil</span>
+            <span class="p-2 rounded-xl bg-[#FBF4CF] text-[#6B5610] border border-[#E6D585]">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+              </svg>
+            </span>
+          </div>
+          <div id="kpiAvgScore" class="mt-2 text-2xl sm:text-3xl font-extrabold text-slate-900">147,25 <span class="text-base font-semibold text-slate-400">/ 180</span></div>
+          <p class="mt-1 text-xs text-emerald-700 font-medium">
+            Persentase capaian: <strong id="kpiAvgPct">81,81%</strong> (Kategori Baik–Sangat Baik)
+          </p>
+        </div>
+
+        <div class="bg-[#FFFDF0] rounded-2xl p-5 border border-[#EFE6B8] shadow-sm hover:border-[#DFC764] transition">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Partisipasi 31 Kelas</span>
+            <span class="p-2 rounded-xl bg-[#FBF4CF] text-[#6B5610] border border-[#E6D585]">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+            </span>
+          </div>
+          <div class="mt-2 text-2xl sm:text-3xl font-extrabold text-slate-900">590 <span class="text-base font-semibold text-slate-400">/ 920</span></div>
+          <p class="mt-1 text-xs text-slate-500">
+            <strong class="text-emerald-700">64,1%</strong> sudah mengisi • <strong class="text-amber-700">330 (35,9%)</strong> belum mengisi
+          </p>
+        </div>
+
+        <div class="bg-[#FFFDF0] rounded-2xl p-5 border border-[#EFE6B8] shadow-sm hover:border-[#8CC5BD] transition">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Dimensi Tertinggi & Terendah</span>
+            <span class="p-2 rounded-xl bg-[#E8F4F2] text-[#2E6F68] border border-[#BFE0DA]">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              </svg>
+            </span>
+          </div>
+          <div class="mt-2 text-base sm:text-lg font-extrabold text-slate-900">
+            D6: <span class="text-emerald-600">86,26%</span> <span class="text-slate-400 font-normal">|</span> D1: <span class="text-amber-600">77,26%</span>
+          </div>
+          <p class="mt-1 text-xs text-slate-500">
+            Bermasyarakat unggul • Bangun Pagi & Gemar Belajar (79,60%) prioritas
+          </p>
+        </div>
+      </div>
+
+      <!-- Charts Row 1: Tren 4 Gelombang & Distribusi Kategori Profil -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div class="lg:col-span-7 bg-[#FFFDF0] rounded-2xl p-5 sm:p-6 border border-[#EFE6B8] shadow-sm">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
+            <div>
+              <h2 class="text-base sm:text-lg font-bold text-slate-900">Tren Capaian 7 Dimensi per Gelombang Survei</h2>
+              <p class="text-xs text-slate-500">8 Nov, 12 Nov, 14 Nov, dan 18 Nov 2026 (masing-masing 592 submisi)</p>
+            </div>
+            <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold bg-[#E8F4F2] text-[#1F4E49] border border-[#BFE0DA]">
+              Kenaikan Konsisten D1–D5 & D7
+            </span>
+          </div>
+          <div class="chart-box-lg">
+            <canvas id="waveTrendChart"></canvas>
+          </div>
+        </div>
+
+        <div class="lg:col-span-5 bg-[#FFFDF0] rounded-2xl p-5 sm:p-6 border border-[#EFE6B8] shadow-sm flex flex-col justify-between">
+          <div>
+            <h2 class="text-base sm:text-lg font-bold text-slate-900">Distribusi Kategori Profil (2.368 Data)</h2>
+            <p class="text-xs text-slate-500 mb-4">Klasifikasi tingkat pembiasaan santri berdasarkan skor komposit</p>
+            <div class="chart-box-sm">
+              <canvas id="categoryDonutChart"></canvas>
+            </div>
+          </div>
+
+          <div class="mt-4 grid grid-cols-2 gap-2.5 pt-3 border-t border-[#EFE6B8] text-xs">
+            <div class="p-2.5 rounded-xl bg-emerald-50/80 border border-emerald-200/60">
+              <div class="text-emerald-800 font-semibold">Sangat Baik (Mandiri)</div>
+              <div id="catMandiriVal" class="text-base font-extrabold text-emerald-950 mt-0.5">974 <span class="text-xs font-normal">(41,1%)</span></div>
+            </div>
+            <div class="p-2.5 rounded-xl bg-[#E8F4F2] border border-[#BFE0DA]">
+              <div class="text-[#1F4E49] font-semibold">Baik (Terbiasa)</div>
+              <div id="catTerbiasaVal" class="text-base font-extrabold text-[#163834] mt-0.5">1.057 <span class="text-xs font-normal">(44,6%)</span></div>
+            </div>
+            <div class="p-2.5 rounded-xl bg-[#FBF4CF] border border-[#E6D585]">
+              <div class="text-[#5C490B] font-semibold">Cukup (Berkembang)</div>
+              <div id="catBerkembangVal" class="text-base font-extrabold text-[#3D3106] mt-0.5">331 <span class="text-xs font-normal">(14,0%)</span></div>
+            </div>
+            <div class="p-2.5 rounded-xl bg-rose-50/80 border border-rose-200/60">
+              <div class="text-rose-800 font-semibold">Perlu Pembinaan</div>
+              <div id="catPembinaanVal" class="text-base font-extrabold text-rose-950 mt-0.5">6 <span class="text-xs font-normal">(0,3%)</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Insight Utama & Ringkasan Gelombang -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div class="lg:col-span-5 bg-[#FFFDF0] rounded-2xl p-5 sm:p-6 border border-[#EFE6B8] shadow-sm flex flex-col justify-between">
+          <div>
+            <h2 class="text-base sm:text-lg font-bold text-slate-900">Perbandingan Capaian Berdasarkan Gender</h2>
+            <p class="text-xs text-slate-500 mb-4">Perempuan 84,99% (1.387 entri) vs Laki-laki 77,31% (981 entri)</p>
+            <div class="chart-box-sm">
+              <canvas id="genderCompareChart"></canvas>
+            </div>
+          </div>
+          <div class="mt-3 pt-3 border-t border-[#EFE6B8] grid grid-cols-2 gap-2.5 text-xs">
+            <div class="p-2.5 rounded-xl bg-[#FBF4CF] border border-[#E6D585]">
+              <div class="font-semibold text-[#5C490B]">Santri Laki-laki (981)</div>
+              <div class="text-base font-extrabold text-[#3D3106] mt-0.5">77,31%</div>
+            </div>
+            <div class="p-2.5 rounded-xl bg-[#E8F4F2] border border-[#BFE0DA]">
+              <div class="font-semibold text-[#1F4E49]">Santri Perempuan (1.387)</div>
+              <div class="text-base font-extrabold text-[#163834] mt-0.5">84,99%</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="lg:col-span-7 bg-[#FFFDF0] rounded-2xl p-5 sm:p-6 border border-[#EFE6B8] shadow-sm">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+            <div>
+              <h2 class="text-base sm:text-lg font-bold text-slate-900">Ringkasan Angka per Gelombang (DATA7KAIH_WAVORAZCA.xlsx)</h2>
+              <p class="text-xs text-slate-500">Perbandingan rata-rata persentase seluruh 7 dimensi pada 4 titik pengukuran</p>
+            </div>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="min-w-full text-left border-collapse text-xs sm:text-sm">
+              <thead>
+                <tr class="border-b border-slate-200 bg-slate-50/80 text-slate-600 font-semibold">
+                  <th class="py-3 px-3 rounded-tl-xl">Gelombang</th>
+                  <th class="py-3 px-3">Tanggal</th>
+                  <th class="py-3 px-3">Submisi</th>
+                  <th class="py-3 px-3">D1</th>
+                  <th class="py-3 px-3">D2</th>
+                  <th class="py-3 px-3">D3</th>
+                  <th class="py-3 px-3">D4</th>
+                  <th class="py-3 px-3">D5</th>
+                  <th class="py-3 px-3">D6</th>
+                  <th class="py-3 px-3 rounded-tr-xl">D7</th>
+                </tr>
+              </thead>
+              <tbody id="waveSummaryTableBody" class="divide-y divide-slate-100 text-slate-700">
+                <!-- Diisi dinamis oleh JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- TAB 2: ANALISIS DIMENSI & BUTIR (P1–P45)                  -->
+    <!-- ========================================================= -->
+    <section id="tab-dimensi" class="tab-panel hidden space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div class="lg:col-span-6 bg-[#FFFDF0] rounded-2xl p-5 sm:p-6 border border-[#EFE6B8] shadow-sm">
+          <h2 class="text-base sm:text-lg font-bold text-slate-900">Rata-Rata Capaian per Dimensi (%)</h2>
+          <p class="text-xs text-slate-500 mb-4">Klik atau hover batang untuk melihat rentang gelombang W1–W4</p>
+          <div class="chart-box">
+            <canvas id="dimensionBarChart"></canvas>
+          </div>
+        </div>
+
+        <div class="lg:col-span-6 bg-[#FFFDF0] rounded-2xl p-5 sm:p-6 border border-[#EFE6B8] shadow-sm">
+          <h2 class="text-base sm:text-lg font-bold text-slate-900">Peta Keseimbangan 7 Kebiasaan (Radar)</h2>
+          <p class="text-xs text-slate-500 mb-4">Visualisasi profil holistik santri SMA MBS Sleman Yogyakarta</p>
+          <div class="chart-box">
+            <canvas id="dimensionRadarChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Kartu Ringkasan 7 Dimensi -->
+      <div id="dimensionCardsGrid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+        <!-- Diisi dinamis oleh JS -->
+      </div>
+
+      <!-- Diagnostik Butir Pernyataan P1-P45 -->
+      <div class="bg-[#FFFDF0] rounded-2xl p-5 sm:p-6 border border-[#EFE6B8] shadow-sm space-y-4">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+          <div>
+            <h2 class="text-base sm:text-lg font-bold text-slate-900">Diagnostik Butir Pernyataan Instrumen (P1–P45)</h2>
+            <p class="text-xs text-slate-500">
+              Menampilkan seluruh 45 butir instrumen 7KAIH beserta penanda <span class="px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 font-semibold">Reverse-Scored (Butir Negatif)</span> yang perlu dibalik skornya saat analisis.
+            </p>
+          </div>
+          <div class="w-full md:w-72">
+            <input
+              id="searchItemInput"
+              type="text"
+              placeholder="Cari nomor (misal: P5) atau kata kunci..."
+              class="w-full rounded-xl border border-[#DFD293] bg-[#E8F4F2]/60 px-3.5 py-2 text-xs sm:text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#589B92] focus:bg-[#FFFDF0]"
+            />
+          </div>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="min-w-full text-left border-collapse text-xs sm:text-sm">
+            <thead>
+              <tr class="border-b border-slate-200 bg-slate-50/90 text-slate-600 font-semibold">
+                <th class="py-3 px-3 rounded-tl-xl w-16">No</th>
+                <th class="py-3 px-3 w-40">Dimensi</th>
+                <th class="py-3 px-3">Pernyataan Instrumen 7KAIH</th>
+                <th class="py-3 px-3 w-40">Arah Skoring</th>
+                <th class="py-3 px-3 rounded-tr-xl w-44">Indeks Kesiapan Butir</th>
+              </tr>
+            </thead>
+            <tbody id="itemsTableBody" class="divide-y divide-slate-100 text-slate-700">
+              <!-- Diisi dinamis oleh JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- TAB 3: PARTISIPASI 31 KELAS & TINDAK LANJUT              -->
+    <!-- ========================================================= -->
+    <section id="tab-partisipasi" class="tab-panel hidden space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div class="lg:col-span-7 bg-[#FFFDF0] rounded-2xl p-5 sm:p-6 border border-[#EFE6B8] shadow-sm">
+          <h2 class="text-base sm:text-lg font-bold text-slate-900">Kelengkapan Pengisian per Jenjang (31 Rombel)</h2>
+          <p class="text-xs text-slate-500 mb-4">Total 920 santri reguler: 590 sudah mengisi (64,1%) dan 330 belum mengisi (35,9%)</p>
+          <div class="chart-box">
+            <canvas id="participationChart"></canvas>
+          </div>
+        </div>
+
+        <div class="lg:col-span-5 bg-[#FFFDF0] rounded-2xl p-5 sm:p-6 border border-[#EFE6B8] shadow-sm flex flex-col justify-between">
+          <div>
+            <h2 class="text-base sm:text-lg font-bold text-slate-900">Evaluasi Kepatuhan & Keunikan NIS/NISN</h2>
+            <p class="text-xs text-slate-500 mt-1">
+              Analisis struktur data dari <code class="px-1.5 py-0.5 rounded bg-slate-100 text-slate-800">DATA7KAIH_WAVORAZCA.xlsx</code>:
+            </p>
+            <ul class="mt-4 space-y-3 text-xs sm:text-sm text-slate-700">
+              <li class="p-3 rounded-xl bg-[#E8F4F2]/80 border border-[#BFE0DA]">
+                <span class="font-bold text-[#1F4E49]">2.368 Submisi / 625 NIS Unik:</span> Rata-rata ~3,79 entri per NIS/NISN unik pada rentang 4 gelombang, menandakan adanya pengisian berulang/multi-sesi yang perlu divalidasi identitasnya.
+              </li>
+              <li class="p-3 rounded-xl bg-[#FBF4CF]/80 border border-[#E6D585]">
+                <span class="font-bold text-[#5C490B]">330 Santri Belum Mengisi (35,9%):</span> Masih ada gap partisipasi sekitar sepertiga populasi reguler yang berpotensi memengaruhi keterwakilan tiap kelas.
+              </li>
+              <li class="p-3 rounded-xl bg-emerald-50/70 border border-emerald-200/70">
+                <span class="font-bold text-emerald-800">Target Tindak Lanjut Wali Kelas & Musyrif:</span> Penjadwalan sesi pengisian terarah di jam halaqah/wali kelas untuk menutup sisa 330 responden.
+              </li>
+            </ul>
+          </div>
+
+          <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+            <span class="text-slate-500">Cakupan Rombel Aktif</span>
+            <span class="font-bold text-slate-900">31 Kelas Reguler (X, XI, XII)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabel Rekap 31 Rombel Reguler -->
+      <div class="bg-[#FFFDF0] rounded-2xl p-5 sm:p-6 border border-[#EFE6B8] shadow-sm space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div>
+            <h2 class="text-base sm:text-lg font-bold text-slate-900">Daftar Rekapitulasi 31 Kelas Reguler</h2>
+            <p class="text-xs text-slate-500">Rincian jumlah santri, status pengisian survei, dan prioritas tindak lanjut per kelas</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <label for="filterStatusKelas" class="text-xs font-semibold text-slate-600">Status:</label>
+            <select id="filterStatusKelas" class="rounded-xl border border-[#DFD293] bg-[#E8F4F2]/60 px-3 py-1.5 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#589B92]">
+              <option value="ALL">Semua 31 Kelas</option>
+              <option value="HIGH">Baik (&lt;30% Belum Mengisi)</option>
+              <option value="MED">Perlu Tindak Lanjut (30%–59% Belum)</option>
+              <option value="LOW">Prioritas Tinggi (&ge;60% Belum Mengisi)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="min-w-full text-left border-collapse text-xs sm:text-sm">
+            <thead>
+              <tr class="border-b border-slate-200 bg-slate-50/90 text-slate-600 font-semibold">
+                <th class="py-3 px-3 rounded-tl-xl">No</th>
+                <th class="py-3 px-3">Nama Kelas</th>
+                <th class="py-3 px-3">Jenjang</th>
+                <th class="py-3 px-3">Total Santri</th>
+                <th class="py-3 px-3">Sudah Mengisi</th>
+                <th class="py-3 px-3">Belum Mengisi</th>
+                <th class="py-3 px-3">% Partisipasi</th>
+                <th class="py-3 px-3 rounded-tr-xl">Tindak Lanjut</th>
+              </tr>
+            </thead>
+            <tbody id="classesTableBody" class="divide-y divide-slate-100 text-slate-700">
+              <!-- Diisi dinamis oleh JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================= -->
+    <!-- TAB 4: REKOMENDASI AKSI NYATA                             -->
+    <!-- ========================================================= -->
+    <section id="tab-rekomendasi" class="tab-panel hidden space-y-6">
+      <div class="bg-gradient-to-br from-[#FBF4CF] via-[#FFFDF0] to-[#D5EBE7] border border-[#DFD293] rounded-2xl p-6 text-slate-900 shadow-sm">
+        <div>
+          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#E8F4F2] text-[#1F4E49] border border-[#BFE0DA]">
+            Program Pembinaan Karakter • Dari Data Menjadi Aksi Nyata
+          </span>
+          <h2 class="text-xl sm:text-2xl font-extrabold mt-2 text-slate-900">
+            Rekomendasi Aksi Nyata Pengasuhan Asrama & Sekolah — SMA MBS Sleman Yogyakarta
+          </h2>
+          <p class="text-xs sm:text-sm text-slate-700 mt-1 max-w-3xl">
+            Disusun berdasarkan temuan kuantitatif 4 gelombang survei (D1 Bangun Pagi 77,26%, D5 Gemar Belajar 79,60%, D7 Tidur Cepat 80,90%, selisih gender 7,68 pp, serta celah 330 santri yang belum mengisi dari 920 santri pada 31 kelas).
+          </p>
+        </div>
+      </div>
+
+      <!-- 4 Kartu Rekomendasi Aksi Nyata -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <article class="bg-[#FFFDF0] rounded-2xl p-6 border border-[#EFE6B8] shadow-sm flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between gap-2">
+              <span class="px-2.5 py-1 rounded-lg text-xs font-bold bg-[#FBF4CF] text-[#5C490B] border border-[#E6D585]">Prioritas 1 • Dimensi D1 & D7</span>
+              <span class="text-xs font-semibold text-slate-500">Asrama & Musyrif</span>
+            </div>
+            <h3 class="text-lg font-bold text-slate-900 mt-3">
+              Gerakan "Lights Out Tertib & Subuh Mandiri" Berbasis Kamar
+            </h3>
+            <p class="text-xs sm:text-sm text-slate-600 mt-2 leading-relaxed">
+              Skor <strong>D1 Bangun Pagi (77,26%)</strong> merupakan yang terendah dan <strong>D7 Tidur Cepat (80,90%)</strong> menjadi prasyarat kebugaran pagi. Terapkan pengumpulan gawai tepat jam <em>Lights Out</em>, pencatatan adab sebelum tidur (P40–P45), dan apresiasi kamar dengan kesiapan Subuh terbaik.
+            </p>
+          </div>
+          <div class="mt-4 pt-3 border-t border-[#EFE6B8] text-xs text-slate-700">
+            <strong>Indikator Keberhasilan:</strong> Kenaikan D1 dari 77,26% menjadi ≥ 81% dan penurunan butir negatif P5, P6, P44, P45 pada gelombang berikutnya.
+          </div>
+        </article>
+
+        <article class="bg-[#FFFDF0] rounded-2xl p-6 border border-[#EFE6B8] shadow-sm flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between gap-2">
+              <span class="px-2.5 py-1 rounded-lg text-xs font-bold bg-[#E8F4F2] text-[#1F4E49] border border-[#BFE0DA]">Prioritas 2 • Dimensi D5</span>
+              <span class="text-xs font-semibold text-slate-500">KBM & Bilingual Habit</span>
+            </div>
+            <h3 class="text-lg font-bold text-slate-900 mt-3">
+              Sesi "Micro-Review 15 Menit & Bilingual Corner"
+            </h3>
+            <p class="text-xs sm:text-sm text-slate-600 mt-2 leading-relaxed">
+              <strong>D5 Gemar Belajar (79,60%)</strong> berada di bawah rata-rata total (81,81%). Padukan reviu catatan mandiri (P30) setelah kelas formal/diniyah dengan tantangan percakapan Arab–Inggris harian (P29) agar belajar tidak bergantung pada jadwal ujian saja (P32).
+            </p>
+          </div>
+          <div class="mt-4 pt-3 border-t border-[#EFE6B8] text-xs text-slate-700">
+            <strong>Indikator Keberhasilan:</strong> Skor D5 menembus ≥ 82% dan penurunan rasa bosan/kehilangan konsentrasi saat KBM (P31).
+          </div>
+        </article>
+
+        <article class="bg-[#FFFDF0] rounded-2xl p-6 border border-[#EFE6B8] shadow-sm flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between gap-2">
+              <span class="px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-100 text-emerald-800">Prioritas 3 • Partisipasi 31 Kelas</span>
+              <span class="text-xs font-semibold text-slate-400">Wali Kelas & Tim Data</span>
+            </div>
+            <h3 class="text-lg font-bold text-slate-900 mt-3">
+              Penuntasan 330 Santri Belum Mengisi & Validasi NIS/NISN
+            </h3>
+            <p class="text-xs sm:text-sm text-slate-600 mt-2 leading-relaxed">
+              Dari 920 santri di 31 kelas reguler, <strong>590 santri (64,1%)</strong> telah terdata dan <strong>330 santri (35,9%)</strong> belum mengisi. Lakukan pendampingan pengisian terstruktur per rombel sekaligus normalisasi format NIS/NISN (625 identitas unik dari 2.368 baris) agar pelacakan longitudinal lebih akurat.
+            </p>
+          </div>
+          <div class="mt-4 pt-3 border-t border-slate-100 text-xs text-slate-700">
+            <strong>Indikator Keberhasilan:</strong> Partisipasi naik dari 64,1% menjadi ≥ 90% di seluruh 31 kelas reguler.
+          </div>
+        </article>
+
+        <article class="bg-[#FFFDF0] rounded-2xl p-6 border border-[#EFE6B8] shadow-sm flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between gap-2">
+              <span class="px-2.5 py-1 rounded-lg text-xs font-bold bg-teal-100 text-teal-800">Prioritas 4 • Penguatan D4 & D6</span>
+              <span class="text-xs font-semibold text-slate-400">Muth'am & Muhasabah</span>
+            </div>
+            <h3 class="text-lg font-bold text-slate-900 mt-3">
+              Replika Praktik Baik D6 Bermasyarakat (86,26%) & D4 Makan Sehat (84,90%)
+            </h3>
+            <p class="text-xs sm:text-sm text-slate-600 mt-2 leading-relaxed">
+              Keunggulan <strong>D6 Bermasyarakat (86,26%)</strong> dan <strong>D4 Makan Sehat Bergizi (84,90%)</strong> menunjukkan budaya gotong royong, muhasabah malam, serta adab makan & <em>zero food waste</em> sudah kuat. Jadikan model <em>peer leadership</em> asrama sebagai pendamping sebaya untuk kebiasaan pagi dan belajar.
+            </p>
+          </div>
+          <div class="mt-4 pt-3 border-t border-slate-100 text-xs text-slate-700">
+            <strong>Indikator Keberhasilan:</strong> Mempertahankan skor D6 &gt; 86% dan D4 &gt; 85% sambil menularkan etos disiplin ke D1 & D5.
+          </div>
+        </article>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="relative z-10 bg-[#FFFDF0]/95 backdrop-blur-sm border-t border-[#EFE6B8] mt-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-xs text-slate-500">
+      <div>
+        <strong>VERTIKAL SMA — SMA MBS Sleman Yogyakarta</strong> • Instrumen Asesmen Profil 7KAIH (45 Butir, TP–KD–SR–SL)
+      </div>
+      <div>
+        Sumber data: <span class="font-medium text-slate-700">DATA7KAIH_WAVORAZCA.xlsx</span> • Kerangka Kompetisi REFO Indonesia
+      </div>
+    </div>
+  </footer>
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- JAVASCRIPT: DATA ASLI, LOGIKA FILTER, GRAFIK & TABEL      -->
+  <!-- ========================================================= -->
+  <script>
+    // Fungsi untuk menampilkan layar sambutan (welcome screen)
+    function showWelcomeScreen() {
+      const launcher = document.getElementById('launcherScreen');
+      const welcome = document.getElementById('welcomeScreen');
+      
+      launcher.classList.add('opacity-0', 'scale-110', 'pointer-events-none');
+      setTimeout(() => {
+        launcher.style.display = 'none';
+        welcome.classList.remove('hidden');
+        setTimeout(() => {
+          welcome.classList.remove('opacity-0');
+        }, 50);
+      }, 400);
+    }
+
+    // Fungsi saat salah satu dari 3 kotak diklik (Dashboard membuka aplikasi utama)
+    function handleBoxClick(boxName) {
+      if (boxName === 'Dashboard' || boxName === 'WAVORAZCA') {
+        openDashboard();
+      } else if (boxName === 'Web.MBS') {
+        window.open('https://www.mbs.sch.id', '_blank');
+      } else {
+        openDashboard();
+      }
+    }
+
+    // Fungsi untuk membuka aplikasi/dashboard utama setelah layar welcome
+    function openDashboard() {
+      const welcome = document.getElementById('welcomeScreen');
+      const container = document.getElementById('mainAppContainer');
+      
+      // Mengubah background body agar transparan dan memperlihatkan background dashboard
+      document.body.classList.remove('bg-[#E8F4F2]');
+      document.body.classList.add('bg-[#174657]');
+      
+      welcome.classList.add('opacity-0', 'scale-105', 'pointer-events-none');
+      setTimeout(() => {
+        welcome.style.display = 'none';
+        container.classList.remove('hidden');
+        setTimeout(() => {
+          container.classList.remove('opacity-0');
+          refreshAll();
+        }, 50);
+      }, 500);
+    }
+
+    // 1. Dataset Utama dari DATA7KAIH_WAVORAZCA.xlsx
+    const DATASET = {
+      totalRowsAll: 2368,
+      uniqueNisAll: 625,
+      avgScoreAll: 147.25,
+      maxScoreAll: 180,
+      avgPctAll: 81.81,
+      waves: [
+        { key: 'W1', label: 'Gelombang 1', date: '2026-11-08', rows: 592, avgPct: 80.81, d: [75.41, 80.96, 80.93, 84.68, 78.32, 86.41, 79.92] },
+        { key: 'W2', label: 'Gelombang 2', date: '2026-11-12', rows: 592, avgPct: 81.64, d: [77.15, 81.63, 81.93, 84.86, 79.37, 86.16, 80.89] },
+        { key: 'W3', label: 'Gelombang 3', date: '2026-11-14', rows: 592, avgPct: 81.98, d: [77.82, 81.82, 82.56, 84.77, 80.15, 85.99, 81.24] },
+        { key: 'W4', label: 'Gelombang 4', date: '2026-11-18', rows: 592, avgPct: 82.61, d: [78.67, 82.08, 83.13, 85.29, 80.57, 86.47, 81.56] }
+      ],
+      dimensions: [
+        { code: 'D1', name: 'Bangun Pagi', subtitle: 'Building Morning Discipline', meanPct: 77.26, w: [75.41, 77.15, 77.82, 78.67], itemsRange: 'P1–P7', color: '#d97706' },
+        { code: 'D2', name: 'Beribadah', subtitle: 'Devotional Excellence & Tahfidz', meanPct: 81.63, w: [80.96, 81.63, 81.82, 82.08], itemsRange: 'P8–P14', color: '#2E6F68' },
+        { code: 'D3', name: 'Berolahraga', subtitle: 'Physical Fitness & Sportsmanship', meanPct: 82.14, w: [80.93, 81.93, 82.56, 83.13], itemsRange: 'P15–P20', color: '#589B92' },
+        { code: 'D4', name: 'Makan Sehat', subtitle: 'Nutrition & Sunnah Eating Adab', meanPct: 84.90, w: [84.68, 84.86, 84.77, 85.29], itemsRange: 'P21–P26', color: '#059669' },
+        { code: 'D5', name: 'Gemar Belajar', subtitle: 'Academic Passion & Bilingual Habit', meanPct: 79.60, w: [78.32, 79.37, 80.15, 80.57], itemsRange: 'P27–P32', color: '#C9A227' },
+        { code: 'D6', name: 'Bermasyarakat', subtitle: 'Community Engagement & Muhasabah', meanPct: 86.26, w: [86.41, 86.16, 85.99, 86.47], itemsRange: 'P33–P39', color: '#10b981' },
+        { code: 'D7', name: 'Tidur Cepat', subtitle: 'Night Sleep Hygiene & Lights Out', meanPct: 80.90, w: [79.92, 80.89, 81.24, 81.56], itemsRange: 'P40–P45', color: '#7BB5AD' }
+      ],
+      categories: {
+        mandiri: 974,
+        terbiasa: 1057,
+        berkembang: 331,
+        pembinaan: 6
+      },
+      participation: {
+        totalClasses: 31,
+        totalStudents: 920,
+        filled: 590,
+        filledPct: 64.1,
+        pending: 330,
+        pendingPct: 35.9
+      }
+    };
+
+    // 2. Seluruh 45 Butir Pernyataan Instrumen 7KAIH (P1–P45)
+    const ITEMS_45 = [
+      { no: 1, dim: 'D1', text: 'Saya bangun secara mandiri sebelum azan Subuh berkumandang untuk melaksanakan Salat Qiyamul Lail.', reverse: false },
+      { no: 2, dim: 'D1', text: 'Saya segera merapikan kasur, bantal, dan perlengkapan tidur sendiri tanpa perlu diingatkan musyrif.', reverse: false },
+      { no: 3, dim: 'D1', text: "Saya menyapa teman dan ustaz/ah di pagi hari menggunakan kalimat santun berbahasa Arab atau Inggris (misal: 'Sabahal khair' / 'Good morning').", reverse: false },
+      { no: 4, dim: 'D1', text: 'Saya sudah siap berpakaian rapi dan tiba di masjid 15 menit sebelum waktu Subuh dimulai.', reverse: false },
+      { no: 5, dim: 'D1', text: 'Saya sering merasa berat untuk bangun pagi sehingga butuh dibangunkan berulang kali oleh teman atau musyrif.', reverse: true },
+      { no: 6, dim: 'D1', text: 'Saya meninggalkan tempat tidur dalam kondisi berantakan karena terburu-buru mengejar waktu Subuh.', reverse: true },
+      { no: 7, dim: 'D1', text: 'Saya merasa enggan mengucapkan sapaan pagi atau menggunakan kosakata bahasa asing saat berinteraksi di pagi hari.', reverse: true },
+      { no: 8, dim: 'D2', text: 'Saya melaksanakan salat fardhu lima waktu secara berjamaah di masjid tepat pada waktunya di shaf terdepan.', reverse: false },
+      { no: 9, dim: 'D2', text: "Saya istiqamah menambah hafalan Al-Qur'an baru dan melakukan muraja'ah mandiri sesuai target halqah tahfidz.", reverse: false },
+      { no: 10, dim: 'D2', text: "Saya merutinkan pembacaan Surah Al-Waqi'ah & Ar-Rahman di sore hari, Surah Al-Kahfi pada Kamis malam, serta Al-Ma'tsurat setiap Jumat sore.", reverse: false },
+      { no: 11, dim: 'D2', text: 'Saya membiasakan diri melaksanakan salat sunnah Rawatib dan menjaga adab-adab Islami dalam aktivitas sehari-hari.', reverse: false },
+      { no: 12, dim: 'D2', text: 'Saya menunda-nunda berwudhu dan berangkat ke masjid ketika panggilan azan sudah berkumandang.', reverse: true },
+      { no: 13, dim: 'D2', text: "Saya jarang mengulang (muraja'ah) hafalan Al-Qur'an di luar jam setoran wajib dengan pengampu tahfidz.", reverse: true },
+      { no: 14, dim: 'D2', text: "Saya melewatkan pembacaan zikir Al-Ma'tsurat atau amalan Surah pilihan yang telah dijadwalkan oleh pihak pesantren.", reverse: true },
+      { no: 15, dim: 'D3', text: 'Saya berpartisipasi aktif dan antusias dalam kegiatan senam bersama atau olah tubuh yang dijadwalkan pesantren.', reverse: false },
+      { no: 16, dim: 'D3', text: 'Saya menyempatkan waktu untuk berolahraga mandiri (seperti jogging, push-up, atau peregangan) demi menjaga kebugaran tubuh.', reverse: false },
+      { no: 17, dim: 'D3', text: "Saya aktif menggunakan kosakata istilah olahraga dalam bahasa Arab/Inggris (seperti 'workout', 'riyadhah', 'stretching') saat beraktivitas fisik.", reverse: false },
+      { no: 18, dim: 'D3', text: 'Saya menjaga kesehatan dan ketahanan fisik agar senantiasa stamina prima dalam mengikuti rangkaian kegiatan asrama.', reverse: false },
+      { no: 19, dim: 'D3', text: 'Saya sering mencari alasan atau bermalas-malasan untuk menghindari agenda senam dan kegiatan olahraga di pesantren.', reverse: true },
+      { no: 20, dim: 'D3', text: 'Saya kurang mempedulikan kebugaran jasmani sehingga tubuh merasa lelah dan kurang bersemangat saat belajar.', reverse: true },
+      { no: 21, dim: 'D4', text: 'Saya menerapkan adab makan sesuai sunnah Nabi SAW (membaca doa/basmalah, makan dengan tangan kanan, dan duduk tenang).', reverse: false },
+      { no: 22, dim: 'D4', text: 'Saya memilih jenis makanan dan minuman yang halal, thayyib (baik), serta memperhatikan keseimbangan gizi harian.', reverse: false },
+      { no: 23, dim: 'D4', text: 'Saya mengambil porsi makan secukupnya dan selalu menghabiskannya tanpa menyisakan makanan sedikit pun (zero food waste).', reverse: false },
+      { no: 24, dim: 'D4', text: "Saya menjaga kebersihan area ruang makan (muth'am) dan langsung mencuci alat makan pribadi setelah selesai digunakan.", reverse: false },
+      { no: 25, dim: 'D4', text: 'Saya sering mengambil porsi makanan terlalu banyak sehingga menyisakan makanan yang akhirnya terbuang sia-sia.', reverse: true },
+      { no: 26, dim: 'D4', text: 'Saya sering mengonsumsi makanan ringan/jajanan yang kurang sehat secara berlebihan di luar jam makan utama.', reverse: true },
+      { no: 27, dim: 'D5', text: 'Saya mengikuti seluruh sesi belajar formal di sekolah maupun kelas diniyah di asrama dengan fokus dan penuh ketekunan.', reverse: false },
+      { no: 28, dim: 'D5', text: 'Saya memiliki inisiatif untuk belajar mandiri dan aktif berdiskusi dalam kelompok (group study) untuk memahami materi.', reverse: false },
+      { no: 29, dim: 'D5', text: 'Saya disiplin menerapkan pembiasaan percakapan bahasa asing (Bilingual Daily Habit Bahasa Arab & Inggris) setiap hari.', reverse: false },
+      { no: 30, dim: 'D5', text: 'Saya rajin mencatat poin penting dari pengajaran ustaz/guru dan mengulas kembali (review) catatan pelajaran di waktu senggang.', reverse: false },
+      { no: 31, dim: 'D5', text: 'Saya mudah merasa bosan, mengantuk, atau kehilangan konsentrasi pada saat proses pembelajaran sedang berlangsung.', reverse: true },
+      { no: 32, dim: 'D5', text: 'Saya enggan membaca buku atau mengulang pelajaran jika tidak ada instruksi langsung atau jadwal ujian dari guru.', reverse: true },
+      { no: 33, dim: 'D6', text: 'Saya aktif bergotong-royong bersama teman-teman dalam menjaga kebersihan, kerapian, dan keasrian lingkungan asrama.', reverse: false },
+      { no: 34, dim: 'D6', text: 'Saya mengikuti kegiatan evaluasi diri bersama (Muhasabah) setiap malam dengan sungguh-sungguh dan khidmat.', reverse: false },
+      { no: 35, dim: 'D6', text: 'Saya menunjukkan kepedulian, kepedulian sosial, serta siap membantu sesama santri yang sedang menghadapi kesulitan.', reverse: false },
+      { no: 36, dim: 'D6', text: 'Saya dapat berkolaborasi dengan baik dalam kelompok dan mampu menunjukkan kepemimpinan yang positif (peer leadership).', reverse: false },
+      { no: 37, dim: 'D6', text: 'Saya acuh tak acuh dan kurang peduli terhadap kebersihan lingkungan fasilitas umum maupun area bersama di asrama.', reverse: true },
+      { no: 38, dim: 'D6', text: 'Saya merasa enggan mengikuti atau menganggap tidak penting sesi muhasabah malam bersama teman-teman asrama.', reverse: true },
+      { no: 39, dim: 'D6', text: 'Saya cenderung bersikap mementingkan diri sendiri dan enggan bekerja sama dalam agenda kebersamaan santri.', reverse: true },
+      { no: 40, dim: 'D7', text: 'Saya mematuhi jadwal istirahat malam dan siap tidur tepat waktu saat instruksi pemadaman lampu (Lights Out) diberlakukan.', reverse: false },
+      { no: 41, dim: 'D7', text: 'Saya taat aturan untuk tidak menyimpan atau menggunakan gawai/perangkat elektronik saat jam istirahat malam.', reverse: false },
+      { no: 42, dim: 'D7', text: 'Saya selalu melakukan adab sebelum tidur secara konsisten (mengambil wudhu, mengibaskan tempat tidur, dan membaca dzikir/doa).', reverse: false },
+      { no: 43, dim: 'D7', text: 'Saya mampu mengatur waktu aktivitas malam sehingga seluruh tugas selesai sebelum jadwal tidur malam tiba.', reverse: false },
+      { no: 44, dim: 'D7', text: 'Saya sering bergadang, mengobrol, atau beraktivitas hingga larut malam melampaui aturan jam tidur yang ditetapkan.', reverse: true },
+      { no: 45, dim: 'D7', text: 'Saya sering langsung berbaring tidur tanpa melakukan wudhu terlebih dahulu atau tanpa membaca doa/dzikir tidur.', reverse: true }
+    ];
+
+    // 3. Rekap 31 Rombel Reguler
+    const CLASSES_31 = [
+      { no: 1, name: '10 A', grade: '10', total: 30, filled: 18 },
+      { no: 2, name: '10 B', grade: '10', total: 32, filled: 21 },
+      { no: 3, name: '10 C', grade: '10', total: 28, filled: 10 },
+      { no: 4, name: '10 D', grade: '10', total: 33, filled: 22 },
+      { no: 5, name: '10 E', grade: '10', total: 31, filled: 16 },
+      { no: 6, name: '10 F', grade: '10', total: 30, filled: 27 },
+      { no: 7, name: '10 G', grade: '10', total: 29, filled: 28 },
+      { no: 8, name: '10 H', grade: '10', total: 29, filled: 27 },
+      { no: 9, name: '10 I', grade: '10', total: 27, filled: 25 },
+      { no: 10, name: '10 J', grade: '10', total: 28, filled: 28 },
+      { no: 11, name: '11 IPA 1', grade: '11', total: 30, filled: 22 },
+      { no: 12, name: '11 IPA 2', grade: '11', total: 31, filled: 16 },
+      { no: 13, name: '11 IPA 3', grade: '11', total: 31, filled: 8 },
+      { no: 14, name: '11 IPA 4', grade: '11', total: 28, filled: 10 },
+      { no: 15, name: '11 IPA 5', grade: '11', total: 27, filled: 25 },
+      { no: 16, name: '11 IPA 6', grade: '11', total: 26, filled: 20 },
+      { no: 17, name: '11 IPA 7', grade: '11', total: 27, filled: 10 },
+      { no: 18, name: '11 IPS 1', grade: '11', total: 27, filled: 12 },
+      { no: 19, name: '11 IPS 2', grade: '11', total: 24, filled: 22 },
+      { no: 20, name: '11 IPS 3', grade: '11', total: 35, filled: 30 },
+      { no: 21, name: '11 IPS 4', grade: '11', total: 36, filled: 19 },
+      { no: 22, name: '12 IPA 1', grade: '12', total: 31, filled: 11 },
+      { no: 23, name: '12 IPA 2', grade: '12', total: 31, filled: 16 },
+      { no: 24, name: '12 IPA 3', grade: '12', total: 30, filled: 10 },
+      { no: 25, name: '12 IPA 4', grade: '12', total: 33, filled: 25 },
+      { no: 26, name: '12 IPA 5', grade: '12', total: 33, filled: 24 },
+      { no: 27, name: '12 IPA 6', grade: '12', total: 34, filled: 21 },
+      { no: 28, name: '12 IPS 1', grade: '12', total: 25, filled: 14 },
+      { no: 29, name: '12 IPS 2', grade: '12', total: 27, filled: 14 },
+      { no: 30, name: '12 IPS 3', grade: '12', total: 29, filled: 19 },
+      { no: 31, name: '12 IPS 4', grade: '12', total: 28, filled: 20 }
+    ];
+
+    // State Aplikasi
+    const state = {
+      wave: 'ALL',
+      dimension: 'ALL',
+      jenjang: 'ALL',
+      itemType: 'ALL',
+      itemSearch: '',
+      classStatus: 'ALL'
+    };
+
+    const charts = {};
+
+    function fmtId(num, decimals = 2) {
+      return num.toLocaleString('id-ID', {
+        minimumFractionDigits: decimals,
+        maximumFractionDigits: decimals
+      });
+    }
+
+    function fmtInt(num) {
+      return Math.round(num).toLocaleString('id-ID');
+    }
+
+    function getDimensionValue(dimObj, waveKey) {
+      if (waveKey === 'ALL') return dimObj.meanPct;
+      const idx = DATASET.waves.findIndex(w => w.key === waveKey);
+      return idx >= 0 ? dimObj.w[idx] : dimObj.meanPct;
+    }
+
+    function updateSummaryAndBanner() {
+      const activeWaveObj = DATASET.waves.find(w => w.key === state.wave);
+      const activeDimObj = DATASET.dimensions.find(d => d.code === state.dimension);
+
+      const subCount = activeWaveObj ? activeWaveObj.rows : DATASET.totalRowsAll;
+      document.getElementById('kpiTotalRows').textContent = fmtInt(subCount);
+
+      let avgPct = DATASET.avgPctAll;
+      if (activeWaveObj && !activeDimObj) {
+        avgPct = activeWaveObj.avgPct;
+      } else if (!activeWaveObj && activeDimObj) {
+        avgPct = activeDimObj.meanPct;
+      } else if (activeWaveObj && activeDimObj) {
+        const wIdx = DATASET.waves.findIndex(w => w.key === state.wave);
+        avgPct = activeDimObj.w[wIdx];
+      }
+
+      const estimatedScore = (avgPct / 100) * 180;
+      document.getElementById('kpiAvgScore').innerHTML = `${fmtId(estimatedScore, 2)} <span class="text-base font-semibold text-slate-400">/ 180</span>`;
+      document.getElementById('kpiAvgPct').textContent = `${fmtId(avgPct, 2)}%`;
+      document.getElementById('headerAvgScore').textContent = `${fmtId(estimatedScore, 2)} / 180 (${fmtId(avgPct, 2)}%)`;
+
+      const ratio = subCount / DATASET.totalRowsAll;
+      const cMandiri = Math.round(DATASET.categories.mandiri * ratio);
+      const cTerbiasa = Math.round(DATASET.categories.terbiasa * ratio);
+      const cBerkembang = Math.round(DATASET.categories.berkembang * ratio);
+      const cPembinaan = Math.max(0, subCount - (cMandiri + cTerbiasa + cBerkembang));
+
+      document.getElementById('catMandiriVal').innerHTML = `${fmtInt(cMandiri)} <span class="text-xs font-normal">(${fmtId((cMandiri / subCount) * 100, 1)}%)</span>`;
+      document.getElementById('catTerbiasaVal').innerHTML = `${fmtInt(cTerbiasa)} <span class="text-xs font-normal">(${fmtId((cTerbiasa / subCount) * 100, 1)}%)</span>`;
+      document.getElementById('catBerkembangVal').innerHTML = `${fmtInt(cBerkembang)} <span class="text-xs font-normal">(${fmtId((cBerkembang / subCount) * 100, 1)}%)</span>`;
+      document.getElementById('catPembinaanVal').innerHTML = `${fmtInt(cPembinaan)} <span class="text-xs font-normal">(${fmtId((cPembinaan / subCount) * 100, 1)}%)</span>`;
+
+      const waveLabel = activeWaveObj ? `${activeWaveObj.label} (${activeWaveObj.date})` : 'Semua Gelombang (8–18 Nov 2026)';
+      const dimLabel = activeDimObj ? `${activeDimObj.code} ${activeDimObj.name}` : 'Semua 7 Dimensi';
+      const jenjangLabel = state.jenjang === 'ALL' ? 'Kelas 10, 11 & 12' : `Kelas ${state.jenjang}`;
+      document.getElementById('bannerScopeText').textContent = `${waveLabel} • ${dimLabel} • ${jenjangLabel} (${fmtInt(subCount)} submisi)`;
+
+      const deltaText = activeDimObj
+        ? `Perubahan ${activeDimObj.code} W1→W4: ${activeDimObj.w[3] - activeDimObj.w[0] >= 0 ? '+' : ''}${fmtId(activeDimObj.w[3] - activeDimObj.w[0], 2)} pp`
+        : `Tren Rata-rata W1→W4: +${fmtId(82.61 - 80.81, 2)} pp`;
+      document.getElementById('bannerWaveDelta').textContent = deltaText;
+    }
+
+    function renderWaveSummaryTable() {
+      const tbody = document.getElementById('waveSummaryTableBody');
+      tbody.innerHTML = DATASET.waves.map(w => {
+        const isSelected = state.wave === w.key;
+        const rowClass = isSelected ? 'bg-[#E8F4F2]/80 font-semibold' : 'hover:bg-[#E8F4F2]/40';
+        return `
+          <tr class="${rowClass}">
+            <td class="py-3 px-3.5 text-slate-900 font-semibold">${w.label}</td>
+            <td class="py-3 px-3.5 text-slate-600">${w.date}</td>
+            <td class="py-3 px-3.5">${fmtInt(w.rows)}</td>
+            ${w.d.map((val, idx) => {
+              const dimCode = `D${idx + 1}`;
+              const highlight = state.dimension === dimCode ? 'bg-[#FBF4CF] text-[#3D3106] font-bold rounded' : '';
+              return `<td class="py-3 px-3.5 ${highlight}">${fmtId(val, 2)}%</td>`;
+            }).join('')}
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function renderDimensionCards() {
+      const grid = document.getElementById('dimensionCardsGrid');
+      const filteredDims = state.dimension === 'ALL'
+        ? DATASET.dimensions
+        : DATASET.dimensions.filter(d => d.code === state.dimension);
+
+      grid.innerHTML = filteredDims.map(d => {
+        const currentVal = getDimensionValue(d, state.wave);
+        const deltaW4 = d.w[3] - d.w[0];
+        const isLowest = d.code === 'D1';
+        const isHighest = d.code === 'D6';
+        const badgeHtml = isHighest
+          ? `<span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800">Tertinggi</span>`
+          : isLowest
+            ? `<span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-[#FBF4CF] text-[#5C490B] border border-[#E6D585]">Prioritas</span>`
+            : `<span class="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-[#E8F4F2] text-[#1F4E49] border border-[#BFE0DA]">${d.itemsRange}</span>`;
+
+        return `
+          <div class="bg-[#FFFDF0] rounded-2xl p-4 border border-[#EFE6B8] shadow-sm flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-xs font-extrabold tracking-wide text-[#2E6F68]">${d.code} • ${d.itemsRange}</span>
+                ${badgeHtml}
+              </div>
+              <h3 class="text-base font-bold text-slate-900 mt-1">${d.name}</h3>
+              <p class="text-[11px] text-slate-500">${d.subtitle}</p>
+            </div>
+            <div class="mt-4 pt-3 border-t border-[#EFE6B8] flex items-baseline justify-between">
+              <span class="text-2xl font-extrabold text-slate-900">${fmtId(currentVal, 2)}%</span>
+              <span class="text-xs font-semibold ${deltaW4 >= 0 ? 'text-emerald-700' : 'text-rose-700'}">
+                W1→W4: ${deltaW4 >= 0 ? '+' : ''}${fmtId(deltaW4, 2)} pp
+              </span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderItemsTable() {
+      const tbody = document.getElementById('itemsTableBody');
+      const q = state.itemSearch.trim().toLowerCase();
+
+      const filtered = ITEMS_45.filter(item => {
+        if (state.dimension !== 'ALL' && item.dim !== state.dimension) return false;
+        if (state.itemType === 'POS' && item.reverse) return false;
+        if (state.itemType === 'REV' && !item.reverse) return false;
+        if (q) {
+          const codeMatch = `p${item.no}`.includes(q) || String(item.no) === q;
+          const textMatch = item.text.toLowerCase().includes(q) || item.dim.toLowerCase().includes(q);
+          if (!codeMatch && !textMatch) return false;
+        }
+        return true;
+      });
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="5" class="py-8 text-center text-slate-500">
+              Tidak ada butir pernyataan yang cocok dengan filter saat ini.
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      const dimObjMap = Object.fromEntries(DATASET.dimensions.map(d => [d.code, d]));
+
+      tbody.innerHTML = filtered.map(item => {
+        const dObj = dimObjMap[item.dim];
+        const revBadge = item.reverse
+          ? `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 border border-amber-200">Reverse-Scored</span>`
+          : `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">Skor Langsung</span>`;
+
+        const readinessNote = item.reverse
+          ? `Wajib balik skor (1↔4, 2↔3) sebelum hitung indeks ${item.dim}`
+          : `Skor langsung TP=1 s.d. SL=4 pada ${item.dim} (${fmtId(dObj.meanPct, 2)}%)`;
+
+        return `
+          <tr class="${item.reverse ? 'bg-[#FBF4CF]/35 hover:bg-[#FBF4CF]/60' : 'hover:bg-[#E8F4F2]/40'}">
+            <td class="py-3 px-3 font-bold text-slate-900">P${item.no}</td>
+            <td class="py-3 px-3 font-semibold text-[#2E6F68]">${item.dim} • ${dObj.name}</td>
+            <td class="py-3 px-3 text-slate-800 leading-relaxed">${item.text}</td>
+            <td class="py-3 px-3">${revBadge}</td>
+            <td class="py-3 px-3 text-xs text-slate-500">${readinessNote}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function renderClassesTable() {
+      const tbody = document.getElementById('classesTableBody');
+      const filtered = CLASSES_31.filter(c => {
+        if (state.jenjang !== 'ALL' && c.grade !== state.jenjang) return false;
+        const pctFilled = (c.filled / c.total) * 100;
+        const pctPending = 100 - pctFilled;
+        if (state.classStatus === 'HIGH' && pctPending >= 30) return false;
+        if (state.classStatus === 'MED' && (pctPending < 30 || pctPending >= 60)) return false;
+        if (state.classStatus === 'LOW' && pctPending < 60) return false;
+        return true;
+      });
+
+      tbody.innerHTML = filtered.map(c => {
+        const pending = c.total - c.filled;
+        const pct = (c.filled / c.total) * 100;
+        const pctPending = 100 - pct;
+        let statusBadge = '';
+        if (pct === 100) {
+          statusBadge = `<span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">Selesai (100%)</span>`;
+        } else if (pctPending < 30) {
+          statusBadge = `<span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">Baik (&lt;30% Belum)</span>`;
+        } else if (pctPending < 60) {
+          statusBadge = `<span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#E8F4F2] text-[#1F4E49] border border-[#BFE0DA]">Perlu Tindak Lanjut</span>`;
+        } else {
+          statusBadge = `<span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#FBF4CF] text-[#5C490B] border border-[#E6D585]">Prioritas Tinggi (&ge;60% Belum)</span>`;
+        }
+
+        return `
+          <tr class="hover:bg-[#E8F4F2]/40">
+            <td class="py-2.5 px-3 text-slate-500">${c.no}</td>
+            <td class="py-2.5 px-3 font-bold text-slate-900">${c.name}</td>
+            <td class="py-2.5 px-3">Kelas ${c.grade}</td>
+            <td class="py-2.5 px-3">${c.total}</td>
+            <td class="py-2.5 px-3 font-semibold text-emerald-700">${c.filled}</td>
+            <td class="py-2.5 px-3 font-semibold text-amber-700">${pending}</td>
+            <td class="py-2.5 px-3 font-bold text-slate-800">${fmtId(pct, 1)}%</td>
+            <td class="py-2.5 px-3">${statusBadge}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function initOrUpdateCharts() {
+      const waveLabels = DATASET.waves.map(w => `${w.label} (${w.date.slice(5)})`);
+      const visibleDims = state.dimension === 'ALL'
+        ? DATASET.dimensions
+        : DATASET.dimensions.filter(d => d.code === state.dimension);
+
+      const waveDatasets = visibleDims.map(d => ({
+        label: `${d.code} ${d.name}`,
+        data: d.w,
+        borderColor: d.color,
+        backgroundColor: d.color,
+        borderWidth: state.dimension === d.code ? 3.5 : 2.2,
+        pointRadius: 4,
+        pointHoverRadius: 6,
+        tension: 0.25
+      }));
+
+      if (charts.waveTrend) charts.waveTrend.destroy();
+      charts.waveTrend = new Chart(document.getElementById('waveTrendChart'), {
+        type: 'line',
+        data: { labels: waveLabels, datasets: waveDatasets },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          plugins: {
+            legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11, family: 'Inter' } } },
+            tooltip: {
+              callbacks: {
+                label: ctx => `${ctx.dataset.label}: ${fmtId(ctx.parsed.y, 2)}%`
+              }
+            }
+          },
+          scales: {
+            y: {
+              min: 72,
+              max: 90,
+              ticks: { callback: v => `${v}%`, font: { size: 11 } },
+              grid: { color: '#f1f5f9' }
+            },
+            x: { grid: { display: false }, ticks: { font: { size: 11 } } }
+          }
+        }
+      });
+
+      const subCount = state.wave === 'ALL' ? DATASET.totalRowsAll : 592;
+      const ratio = subCount / DATASET.totalRowsAll;
+      const cMandiri = Math.round(DATASET.categories.mandiri * ratio);
+      const cTerbiasa = Math.round(DATASET.categories.terbiasa * ratio);
+      const cBerkembang = Math.round(DATASET.categories.berkembang * ratio);
+      const cPembinaan = Math.max(0, subCount - (cMandiri + cTerbiasa + cBerkembang));
+
+      if (charts.categoryDonut) charts.categoryDonut.destroy();
+      charts.categoryDonut = new Chart(document.getElementById('categoryDonutChart'), {
+        type: 'doughnut',
+        data: {
+          labels: ['Sangat Baik (Mandiri)', 'Baik (Terbiasa)', 'Cukup (Berkembang)', 'Perlu Pembinaan'],
+          datasets: [{
+            data: [cMandiri, cTerbiasa, cBerkembang, cPembinaan],
+            backgroundColor: ['#059669', '#589B92', '#E5C654', '#e11d48'],
+            borderWidth: 2,
+            borderColor: '#FFFDF0'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '62%',
+          plugins: {
+            legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11, family: 'Inter' } } },
+            tooltip: {
+              callbacks: {
+                label: ctx => {
+                  const pct = ((ctx.parsed / subCount) * 100).toFixed(1);
+                  return `${ctx.label}: ${fmtInt(ctx.parsed)} (${pct}%)`;
+                }
+              }
+            }
+          }
+        }
+      });
+
+      const dimLabels = DATASET.dimensions.map(d => `${d.code} ${d.name}`);
+      const dimValues = DATASET.dimensions.map(d => getDimensionValue(d, state.wave));
+      const dimColors = DATASET.dimensions.map(d =>
+        state.dimension === 'ALL' || state.dimension === d.code ? d.color : '#cbd5e1'
+      );
+
+      if (charts.dimensionBar) charts.dimensionBar.destroy();
+      charts.dimensionBar = new Chart(document.getElementById('dimensionBarChart'), {
+        type: 'bar',
+        data: {
+          labels: dimLabels,
+          datasets: [{
+            label: 'Capaian (%)',
+            data: dimValues,
+            backgroundColor: dimColors,
+            borderRadius: 8,
+            maxBarThickness: 42
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: { label: ctx => `Capaian: ${fmtId(ctx.parsed.y, 2)}%` }
+            }
+          },
+          scales: {
+            y: {
+              min: 65,
+              max: 95,
+              ticks: { callback: v => `${v}%`, font: { size: 11 } },
+              grid: { color: '#f1f5f9' }
+            },
+            x: { ticks: { font: { size: 10.5 } }, grid: { display: false } }
+          }
+        }
+      });
+
+      if (charts.dimensionRadar) charts.dimensionRadar.destroy();
+      charts.dimensionRadar = new Chart(document.getElementById('dimensionRadarChart'), {
+        type: 'radar',
+        data: {
+          labels: DATASET.dimensions.map(d => `${d.code}: ${d.name}`),
+          datasets: [{
+            label: state.wave === 'ALL' ? 'Rata-rata 4 Gelombang (%)' : `Capaian ${state.wave} (%)`,
+            data: dimValues,
+            fill: true,
+            backgroundColor: 'rgba(88, 155, 146, 0.22)',
+            borderColor: '#2E6F68',
+            pointBackgroundColor: '#D9B436',
+            pointBorderColor: '#FFFDF0',
+            pointRadius: 4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            r: {
+              min: 70,
+              max: 90,
+              ticks: { stepSize: 5, backdropColor: 'transparent', font: { size: 10 } },
+              pointLabels: { font: { size: 11, weight: '600', family: 'Inter' } }
+            }
+          },
+          plugins: {
+            legend: { position: 'bottom', labels: { font: { size: 11 } } }
+          }
+        }
+      });
+
+      const grades = ['10', '11', '12'].filter(g => state.jenjang === 'ALL' || state.jenjang === g);
+      const gradeLabels = grades.map(g => `Kelas ${g}`);
+      const filledByGrade = grades.map(g =>
+        CLASSES_31.filter(c => c.grade === g).reduce((s, c) => s + c.filled, 0)
+      );
+      const pendingByGrade = grades.map(g =>
+        CLASSES_31.filter(c => c.grade === g).reduce((s, c) => s + (c.total - c.filled), 0)
+      );
+
+      if (charts.participation) charts.participation.destroy();
+      charts.participation = new Chart(document.getElementById('participationChart'), {
+        type: 'bar',
+        data: {
+          labels: gradeLabels,
+          datasets: [
+            {
+              label: 'Sudah Mengisi',
+              data: filledByGrade,
+              backgroundColor: '#059669',
+              borderRadius: 6
+            },
+            {
+              label: 'Belum Mengisi',
+              data: pendingByGrade,
+              backgroundColor: '#f59e0b',
+              borderRadius: 6
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'bottom', labels: { font: { size: 11 } } }
+          },
+          scales: {
+            x: { stacked: true, grid: { display: false } },
+            y: { stacked: true, grid: { color: '#f1f5f9' } }
+          }
+        }
+      });
+
+      const genderCanvas = document.getElementById('genderCompareChart');
+      if (genderCanvas) {
+        if (charts.genderCompare) charts.genderCompare.destroy();
+        charts.genderCompare = new Chart(genderCanvas, {
+          type: 'bar',
+          data: {
+            labels: ['D1', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7'],
+            datasets: [
+              {
+                label: 'Laki-laki (77,31%)',
+                data: [73.81, 75.24, 79.61, 80.83, 74.99, 81.10, 75.88],
+                backgroundColor: '#E5C654',
+                borderRadius: 5
+              },
+              {
+                label: 'Perempuan (84,99%)',
+                data: [79.71, 86.14, 83.93, 87.78, 82.86, 89.91, 84.46],
+                backgroundColor: '#589B92',
+                borderRadius: 5
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { position: 'bottom', labels: { boxWidth: 11, font: { size: 11 } } }
+            },
+            scales: {
+              y: { min: 65, max: 95, ticks: { callback: v => `${v}%`, font: { size: 10 } }, grid: { color: '#f1f5f9' } },
+              x: { grid: { display: false }, ticks: { font: { size: 11 } } }
+            }
+          }
+        });
+      }
+    }
+
+    function refreshAll() {
+      updateSummaryAndBanner();
+      renderWaveSummaryTable();
+      renderDimensionCards();
+      renderItemsTable();
+      renderClassesTable();
+      initOrUpdateCharts();
+    }
+
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const targetId = btn.getAttribute('data-tab');
+
+        document.querySelectorAll('.tab-btn').forEach(b => {
+          b.classList.remove('bg-[#F7E596]', 'text-[#3D3106]', 'border-[#DFC764]', 'shadow-sm');
+          b.classList.add('bg-[#E8F4F2]', 'text-[#1F4E49]', 'hover:bg-[#D5EBE7]', 'border-[#BFE0DA]');
+        });
+        btn.classList.remove('bg-[#E8F4F2]', 'text-[#1F4E49]', 'hover:bg-[#D5EBE7]', 'border-[#BFE0DA]');
+        btn.classList.add('bg-[#F7E596]', 'text-[#3D3106]', 'border-[#DFC764]', 'shadow-sm');
+
+        document.querySelectorAll('.tab-panel').forEach(panel => {
+          panel.classList.add('hidden');
+        });
+        document.getElementById(targetId).classList.remove('hidden');
+
+        setTimeout(() => {
+          Object.values(charts).forEach(ch => ch && ch.resize());
+        }, 40);
+      });
+    });
+
+    document.getElementById('filterWave').addEventListener('change', e => {
+      state.wave = e.target.value;
+      refreshAll();
+    });
+
+    document.getElementById('filterDimension').addEventListener('change', e => {
+      state.dimension = e.target.value;
+      refreshAll();
+    });
+
+    document.getElementById('filterJenjang').addEventListener('change', e => {
+      state.jenjang = e.target.value;
+      refreshAll();
+    });
+
+    document.getElementById('filterItemType').addEventListener('change', e => {
+      state.itemType = e.target.value;
+      renderItemsTable();
+    });
+
+    document.getElementById('searchItemInput').addEventListener('input', e => {
+      state.itemSearch = e.target.value;
+      renderItemsTable();
+    });
+
+    document.getElementById('filterStatusKelas').addEventListener('change', e => {
+      state.classStatus = e.target.value;
+      renderClassesTable();
+    });
+
+    document.getElementById('btnResetFilter').addEventListener('click', () => {
+      state.wave = 'ALL';
+      state.dimension = 'ALL';
+      state.jenjang = 'ALL';
+      state.itemType = 'ALL';
+      state.itemSearch = '';
+      state.classStatus = 'ALL';
+
+      document.getElementById('filterWave').value = 'ALL';
+      document.getElementById('filterDimension').value = 'ALL';
+      document.getElementById('filterJenjang').value = 'ALL';
+      document.getElementById('filterItemType').value = 'ALL';
+      document.getElementById('searchItemInput').value = '';
+      document.getElementById('filterStatusKelas').value = 'ALL';
+
+      refreshAll();
+    });
+
+    window.addEventListener('DOMContentLoaded', () => {
+      // Menunggu interaksi klik dari pengguna pada ikon launcher
+    });
+  </script>
+</body>
+</html>
